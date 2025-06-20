@@ -1,14 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Battery, BatteryCharging as ChargingPod, Clock, MapPin, Shield, Wrench, ArrowRight, MessageCircle } from 'lucide-react';
+import { Battery, BatteryCharging as ChargingPod, Clock, MapPin, Shield, Wrench, ArrowRight } from 'lucide-react';
 
 const Home: React.FC = () => {
   const { user } = useAuth();
-
-  const handleSupportClick = () => {
-    window.open('http://www.support.evservices.site/', '_blank');
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -170,15 +166,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </footer>
-
-      {/* Support Chat Button - Fixed Position */}
-      <button
-        onClick={handleSupportClick}
-        className="fixed bottom-6 right-6 bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 z-50"
-        title="Get Support"
-      >
-        <MessageCircle className="h-6 w-6" />
-      </button>
     </div>
   );
 };
