@@ -16,7 +16,8 @@ import {
   Play,
   Info,
   Wind,
-  Thermometer
+  Thermometer,
+  RefreshCw
 } from 'lucide-react';
 
 interface Location {
@@ -63,6 +64,7 @@ const TripPlanner: React.FC = () => {
   const [nearbyStations, setNearbyStations] = useState<any[]>([]);
   const [isPlanning, setIsPlanning] = useState(false);
   const [locationError, setLocationError] = useState('');
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [weatherConditions, setWeatherConditions] = useState({
     temperature: 72,
     windSpeed: 8,
@@ -110,34 +112,143 @@ const TripPlanner: React.FC = () => {
     getCurrentLocation();
   }, []);
 
-  const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
+  const getCurrentLocation = async () => {
+    setIsGettingLocation(true);
+    setLocationError('');
+
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by this browser.');
+      setIsGettingLocation(false);
+      setFallbackLocation();
+      return;
+    }
+
+    // Check if location permission is already granted
+    try {
+      const permission = await navigator.permissions.query({ name: 'geolocation' });
+      
+      if (permission.state === 'denied') {
+        setLocationError('Location access denied. Please enable location services in your browser settings.');
+        setIsGettingLocation(false);
+        setFallbackLocation();
+        return;
+      }
+    } catch (error) {
+      console.log('Permission API not supported');
+    }
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000, // 10 seconds
+      maximumAge: 300000 // 5 minutes
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Try to get a readable address using reverse geocoding
+          const address = await reverseGeocode(latitude, longitude);
+          
           const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            address: 'Current Location'
+            lat: latitude,
+            lng: longitude,
+            address: address || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
           };
+          
           setCurrentLocation(location);
           findNearbyStations(location);
           setLocationError('');
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          setLocationError('Unable to get your current location. Please enable location services.');
-          // Fallback to NYC coordinates for demo
-          const fallbackLocation = {
-            lat: 40.7128,
-            lng: -74.0060,
-            address: 'New York, NY (Demo Location)'
+          
+          // Auto-fill start location if empty
+          if (!startLocation && address) {
+            setStartLocation(address);
+          }
+        } catch (error) {
+          console.error('Error processing location:', error);
+          const location = {
+            lat: latitude,
+            lng: longitude,
+            address: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
           };
-          setCurrentLocation(fallbackLocation);
-          findNearbyStations(fallbackLocation);
+          setCurrentLocation(location);
+          findNearbyStations(location);
         }
-      );
-    } else {
-      setLocationError('Geolocation is not supported by this browser.');
+        
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        let errorMessage = 'Unable to get your current location. ';
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Location access denied. Please enable location services.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'Location request timed out.';
+            break;
+          default:
+            errorMessage += 'An unknown error occurred.';
+            break;
+        }
+        
+        setLocationError(errorMessage);
+        setIsGettingLocation(false);
+        setFallbackLocation();
+      },
+      options
+    );
+  };
+
+  const setFallbackLocation = () => {
+    // Use NYC as fallback location
+    const fallbackLocation = {
+      lat: 40.7128,
+      lng: -74.0060,
+      address: 'New York, NY (Demo Location)'
+    };
+    setCurrentLocation(fallbackLocation);
+    findNearbyStations(fallbackLocation);
+    
+    if (!startLocation) {
+      setStartLocation('New York, NY');
+    }
+  };
+
+  const reverseGeocode = async (lat: number, lng: number): Promise<string | null> => {
+    try {
+      // Using a simple approach to determine city based on coordinates
+      // In a real app, you'd use a proper geocoding service
+      const cityMap = [
+        { name: 'New York, NY', lat: 40.7128, lng: -74.0060, radius: 50 },
+        { name: 'Los Angeles, CA', lat: 34.0522, lng: -118.2437, radius: 50 },
+        { name: 'Chicago, IL', lat: 41.8781, lng: -87.6298, radius: 50 },
+        { name: 'Houston, TX', lat: 29.7604, lng: -95.3698, radius: 50 },
+        { name: 'Phoenix, AZ', lat: 33.4484, lng: -112.0740, radius: 50 },
+        { name: 'Philadelphia, PA', lat: 39.9526, lng: -75.1652, radius: 50 },
+        { name: 'San Antonio, TX', lat: 29.4241, lng: -98.4936, radius: 50 },
+        { name: 'San Diego, CA', lat: 32.7157, lng: -117.1611, radius: 50 },
+        { name: 'Dallas, TX', lat: 32.7767, lng: -96.7970, radius: 50 },
+        { name: 'San Jose, CA', lat: 37.3382, lng: -121.8863, radius: 50 },
+      ];
+
+      for (const city of cityMap) {
+        const distance = calculateDistance(lat, lng, city.lat, city.lng);
+        if (distance <= city.radius) {
+          return city.name;
+        }
+      }
+
+      // If no city match, return a generic location
+      return `Location (${lat.toFixed(2)}, ${lng.toFixed(2)})`;
+    } catch (error) {
+      console.error('Reverse geocoding failed:', error);
+      return null;
     }
   };
 
@@ -158,7 +269,8 @@ const TripPlanner: React.FC = () => {
         isOccupied: Math.random() > 0.7,
         connectorType: station.type,
         maxPower: station.power,
-        pricePerKwh: station.price
+        pricePerKwh: station.price,
+        location: station.name.split(' - ')[1] || 'Charging Station'
       };
     });
 
@@ -472,27 +584,47 @@ const TripPlanner: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900">Your Location</h3>
               <button
                 onClick={getCurrentLocation}
-                className="p-2 text-gray-400 hover:text-gray-600"
+                disabled={isGettingLocation}
+                className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
                 title="Refresh location"
               >
-                <Navigation className="h-4 w-4" />
+                <RefreshCw className={`h-4 w-4 ${isGettingLocation ? 'animate-spin' : ''}`} />
               </button>
             </div>
             
             {locationError ? (
-              <div className="flex items-center text-red-600 text-sm">
-                <AlertCircle className="h-4 w-4 mr-2" />
-                {locationError}
+              <div className="space-y-3">
+                <div className="flex items-start text-red-600 text-sm">
+                  <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>{locationError}</span>
+                </div>
+                <button
+                  onClick={getCurrentLocation}
+                  className="text-sm text-blue-600 hover:text-blue-700 underline"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : isGettingLocation ? (
+              <div className="flex items-center text-gray-500 text-sm">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
+                Getting your location...
               </div>
             ) : currentLocation ? (
-              <div className="flex items-center text-green-600 text-sm">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                {currentLocation.address}
+              <div className="space-y-2">
+                <div className="flex items-center text-green-600 text-sm">
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  <span>Location found</span>
+                </div>
+                <p className="text-sm text-gray-700">{currentLocation.address}</p>
+                <p className="text-xs text-gray-500">
+                  {currentLocation.lat.toFixed(4)}, {currentLocation.lng.toFixed(4)}
+                </p>
               </div>
             ) : (
               <div className="flex items-center text-gray-500 text-sm">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500 mr-2"></div>
-                Getting location...
+                <Navigation className="h-4 w-4 mr-2" />
+                <span>Location not available</span>
               </div>
             )}
           </div>
