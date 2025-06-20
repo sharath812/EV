@@ -1,7 +1,17 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Car, LogOut, User, Home, Plus } from 'lucide-react';
+import { 
+  Car, 
+  LogOut, 
+  User, 
+  Home, 
+  Plus, 
+  Activity, 
+  BarChart3, 
+  CreditCard,
+  Zap
+} from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -55,6 +65,42 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <Car className="h-4 w-4" />
                   <span>My Vehicles</span>
+                </Link>
+
+                <Link
+                  to="/stations"
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/stations')
+                      ? 'bg-green-100 text-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Zap className="h-4 w-4" />
+                  <span>Stations</span>
+                </Link>
+
+                <Link
+                  to="/analytics"
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/analytics')
+                      ? 'bg-green-100 text-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  <span>Analytics</span>
+                </Link>
+
+                <Link
+                  to="/billing"
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/billing')
+                      ? 'bg-green-100 text-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <CreditCard className="h-4 w-4" />
+                  <span>Billing</span>
                 </Link>
 
                 <Link
