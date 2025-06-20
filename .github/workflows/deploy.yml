@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -21,8 +21,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /usr/share/nginx/html
+            git reset --hard
             git pull origin main
-            npm install
+            npm ci || npm install
             npm run build
-            sudo cp -r dist/* .
+            sudo rm -rf /usr/share/nginx/html/*.html /usr/share/nginx/html/assets
+            sudo cp -r dist/* /usr/share/nginx/html/
             sudo systemctl restart nginx
