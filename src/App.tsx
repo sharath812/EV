@@ -17,7 +17,7 @@ function App() {
         
         <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
           <h1 className="text-5xl md:text-6xl font-bold text-center mb-6">
-            Smart Solutions for EV Challenges
+           Hi Smart Solutions for EV Challenges
           </h1>
           <p className="text-xl md:text-2xl text-center max-w-3xl mb-8">
             We provide innovative solutions to make your electric vehicle experience seamless and worry-free
