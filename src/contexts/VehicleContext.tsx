@@ -41,64 +41,111 @@ export const VehicleProvider: React.FC<VehicleProviderProps> = ({ children }) =>
       if (storedVehicles) {
         setVehicles(JSON.parse(storedVehicles));
       } else {
-        // Add some mock data for demo purposes
-        const mockVehicles: Vehicle[] = [
-          {
-            id: '1',
-            userId: user.id,
-            make: 'Tesla',
-            model: 'Model 3',
-            year: 2023,
-            color: 'Pearl White',
-            vin: '5YJ3E1EA4PF123456',
-            batteryCapacity: 75,
-            currentRange: 245,
-            maxRange: 310,
-            chargingStatus: 'idle',
-            batteryLevel: 78,
-            lastChargeDate: '2024-12-20T08:30:00Z',
-            odometer: 15420,
-            efficiency: 4.2,
-            createdAt: '2024-01-15T10:00:00Z',
-            updatedAt: '2024-12-20T08:30:00Z',
-          },
-        ];
-        setVehicles(mockVehicles);
-        localStorage.setItem(`vehicles_${user.id}`, JSON.stringify(mockVehicles));
+        // Add some mock data for demo user
+        if (user.id === 'demo-user-123') {
+          const mockVehicles: Vehicle[] = [
+            {
+              id: '1',
+              userId: user.id,
+              make: 'Tesla',
+              model: 'Model 3',
+              year: 2023,
+              color: 'Pearl White',
+              vin: '5YJ3E1EA4PF123456',
+              batteryCapacity: 75,
+              currentRange: 245,
+              maxRange: 310,
+              chargingStatus: 'idle',
+              batteryLevel: 78,
+              lastChargeDate: '2024-12-20T08:30:00Z',
+              odometer: 15420,
+              efficiency: 4.2,
+              createdAt: '2024-01-15T10:00:00Z',
+              updatedAt: '2024-12-20T08:30:00Z',
+            },
+            {
+              id: '2',
+              userId: user.id,
+              make: 'BMW',
+              model: 'iX',
+              year: 2024,
+              color: 'Storm Bay',
+              vin: 'WBAXH1C09PCG12345',
+              batteryCapacity: 111.5,
+              currentRange: 298,
+              maxRange: 324,
+              chargingStatus: 'charging',
+              batteryLevel: 92,
+              lastChargeDate: '2024-12-21T14:15:00Z',
+              odometer: 8750,
+              efficiency: 2.9,
+              createdAt: '2024-03-10T14:30:00Z',
+              updatedAt: '2024-12-21T14:15:00Z',
+            },
+          ];
+          setVehicles(mockVehicles);
+          localStorage.setItem(`vehicles_${user.id}`, JSON.stringify(mockVehicles));
+        }
       }
       
       if (storedSessions) {
         setChargingSessions(JSON.parse(storedSessions));
       } else {
-        // Add some mock charging sessions
-        const mockSessions: ChargingSession[] = [
-          {
-            id: '1',
-            vehicleId: '1',
-            startTime: '2024-12-20T08:00:00Z',
-            endTime: '2024-12-20T08:30:00Z',
-            startBatteryLevel: 65,
-            endBatteryLevel: 78,
-            energyAdded: 9.75,
-            cost: 12.50,
-            location: 'Supercharger - Downtown',
-            chargingSpeed: 'fast',
-          },
-          {
-            id: '2',
-            vehicleId: '1',
-            startTime: '2024-12-18T19:00:00Z',
-            endTime: '2024-12-18T23:30:00Z',
-            startBatteryLevel: 25,
-            endBatteryLevel: 85,
-            energyAdded: 45,
-            cost: 18.75,
-            location: 'Home Charger',
-            chargingSpeed: 'slow',
-          },
-        ];
-        setChargingSessions(mockSessions);
-        localStorage.setItem(`chargingSessions_${user.id}`, JSON.stringify(mockSessions));
+        // Add some mock charging sessions for demo user
+        if (user.id === 'demo-user-123') {
+          const mockSessions: ChargingSession[] = [
+            {
+              id: '1',
+              vehicleId: '1',
+              startTime: '2024-12-20T08:00:00Z',
+              endTime: '2024-12-20T08:30:00Z',
+              startBatteryLevel: 65,
+              endBatteryLevel: 78,
+              energyAdded: 9.75,
+              cost: 12.50,
+              location: 'Supercharger - Downtown',
+              chargingSpeed: 'fast',
+            },
+            {
+              id: '2',
+              vehicleId: '1',
+              startTime: '2024-12-18T19:00:00Z',
+              endTime: '2024-12-18T23:30:00Z',
+              startBatteryLevel: 25,
+              endBatteryLevel: 85,
+              energyAdded: 45,
+              cost: 18.75,
+              location: 'Home Charger',
+              chargingSpeed: 'slow',
+            },
+            {
+              id: '3',
+              vehicleId: '2',
+              startTime: '2024-12-21T14:00:00Z',
+              endTime: '2024-12-21T15:45:00Z',
+              startBatteryLevel: 78,
+              endBatteryLevel: 92,
+              energyAdded: 15.6,
+              cost: 22.40,
+              location: 'Electrify America - Mall',
+              chargingSpeed: 'rapid',
+            },
+            {
+              id: '4',
+              vehicleId: '2',
+              startTime: '2024-12-19T11:30:00Z',
+              endTime: '2024-12-19T12:15:00Z',
+              startBatteryLevel: 45,
+              endBatteryLevel: 68,
+              energyAdded: 25.6,
+              cost: 28.90,
+              location: 'ChargePoint - Office',
+              chargingSpeed: 'fast',
+            },
+          ];
+          setChargingSessions(mockSessions);
+          localStorage.setItem(`chargingSessions_${user.id}`, JSON.stringify(mockSessions));
+        }
       }
     }
   }, [user]);

@@ -20,6 +20,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize demo user if not exists
+    const mockUsers = JSON.parse(localStorage.getItem('mockUsers') || '[]');
+    const demoUserExists = mockUsers.find((u: any) => u.email === 'demo@example.com');
+    
+    if (!demoUserExists) {
+      const demoUser = {
+        id: 'demo-user-123',
+        email: 'demo@example.com',
+        firstName: 'Demo',
+        lastName: 'User',
+        phone: '+1 (555) 123-4567',
+        createdAt: '2024-01-01T00:00:00Z',
+        password: 'demo123'
+      };
+      mockUsers.push(demoUser);
+      localStorage.setItem('mockUsers', JSON.stringify(mockUsers));
+    }
+
     // Check for stored user session
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
