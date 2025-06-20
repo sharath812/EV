@@ -2,11 +2,23 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useVehicles } from '../contexts/VehicleContext';
-import { Battery, Car, Clock, MapPin, Plus, TrendingUp } from 'lucide-react';
+import { useStations } from '../contexts/StationContext';
+import { 
+  Battery, 
+  Car, 
+  Clock, 
+  MapPin, 
+  Plus, 
+  TrendingUp, 
+  Zap,
+  Navigation,
+  Route
+} from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { vehicles, chargingSessions } = useVehicles();
+  const { stations, metrics } = useStations();
 
   const totalVehicles = vehicles.length;
   const averageBatteryLevel = vehicles.length > 0 
@@ -14,6 +26,7 @@ const Dashboard: React.FC = () => {
     : 0;
   const totalMiles = vehicles.reduce((sum, v) => sum + v.odometer, 0);
   const recentSessions = chargingSessions.slice(-5);
+  const nearbyStations = stations.slice(0, 3); // Show first 3 stations as "nearby"
 
   const getChargingStatusColor = (status: string) => {
     switch (status) {
@@ -39,7 +52,7 @@ const Dashboard: React.FC = () => {
           Welcome back, {user?.firstName}!
         </h1>
         <p className="text-gray-600 mt-2">
-          Here's an overview of your electric vehicle fleet
+          Here's an overview of your electric vehicle fleet and charging network
         </p>
       </div>
 
@@ -84,17 +97,17 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
             <div className="p-2 bg-orange-100 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-orange-600" />
+              <Zap className="h-6 w-6 text-orange-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Charging Sessions</p>
-              <p className="text-2xl font-bold text-gray-900">{chargingSessions.length}</p>
+              <p className="text-sm font-medium text-gray-600">Active Stations</p>
+              <p className="text-2xl font-bold text-gray-900">{metrics.activeStations}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Vehicle Overview */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
@@ -161,6 +174,55 @@ const Dashboard: React.FC = () => {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Quick Actions</h2>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              <Link
+                to="/trip-planner"
+                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="p-2 bg-blue-100 rounded-lg mr-4">
+                  <Route className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Plan a Trip</h3>
+                  <p className="text-sm text-gray-500">Find charging stops for your journey</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/stations"
+                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="p-2 bg-green-100 rounded-lg mr-4">
+                  <Zap className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Find Stations</h3>
+                  <p className="text-sm text-gray-500">Locate nearby charging stations</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/analytics"
+                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="p-2 bg-purple-100 rounded-lg mr-4">
+                  <TrendingUp className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">View Analytics</h3>
+                  <p className="text-sm text-gray-500">Track your charging patterns</p>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
 

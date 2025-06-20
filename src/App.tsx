@@ -15,6 +15,7 @@ import VehicleDetail from './pages/VehicleDetail';
 import StationMonitoring from './pages/StationMonitoring';
 import Analytics from './pages/Analytics';
 import Billing from './pages/Billing';
+import TripPlanner from './pages/TripPlanner';
 
 function App() {
   return (
@@ -80,6 +81,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Billing />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/trip-planner"
+                  element={
+                    <ProtectedRoute>
+                      <TripPlanner />
                     </ProtectedRoute>
                   }
                 />

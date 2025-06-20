@@ -10,7 +10,8 @@ import {
   Activity, 
   BarChart3, 
   CreditCard,
-  Zap
+  Zap,
+  MapPin
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -77,6 +78,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <Zap className="h-4 w-4" />
                   <span>Stations</span>
+                </Link>
+
+                <Link
+                  to="/trip-planner"
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive('/trip-planner')
+                      ? 'bg-green-100 text-green-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <MapPin className="h-4 w-4" />
+                  <span>Trip Planner</span>
                 </Link>
 
                 <Link
