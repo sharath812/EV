@@ -6,6 +6,10 @@ import { Battery, BatteryCharging as ChargingPod, Clock, MapPin, Shield, Wrench,
 const Home: React.FC = () => {
   const { user } = useAuth();
 
+  const handleContactClick = () => {
+    window.open('http://www.support.evservices.site/', '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -151,7 +155,14 @@ const Home: React.FC = () => {
             <ul className="space-y-2 text-gray-400">
               <li>About Us</li>
               <li>Careers</li>
-              <li>Contact</li>
+              <li>
+                <button 
+                  onClick={handleContactClick}
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  Contact
+                </button>
+              </li>
               <li>Blog</li>
             </ul>
           </div>
